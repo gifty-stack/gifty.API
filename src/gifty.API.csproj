@@ -15,7 +15,15 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Cors" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.1" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.0.0"/>
     <PackageReference Include="Nancy" Version="2.0.0-clinteastwood" />
+    <PackageReference Include="Nancy.Bootstrappers.Autofac" Version="2.0.0-clinteastwood"/>
+    <PackageReference Include="Nancy.Authentication.Stateless" Version="2.0.0-clinteastwood"/>
+    <PackageReference Include="jose-jwt" Version="2.2.0"/>
     <ProjectReference Include="..\..\gifty.Shared\src\gifty.Shared.csproj" />  
   </ItemGroup>
 </Project>
