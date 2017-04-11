@@ -1,47 +1,46 @@
 using Autofac;
+using gifty.Api.Providers;
+using gifty.Api.Auth;
 using Nancy;
 using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
+using System.Linq;
 
 namespace gifty.API.Bootstrapers
 {
-    public class AuthBootstraper : AutofacNancyBootstrapper
+    internal sealed class AuthBootstraper : AutofacNancyBootstrapper
     {
         private readonly IContainer _owinContainer;
+        private ILifetimeScope _lifetimeScope;
         public AuthBootstraper(IContainer owinContainer)
         {
             _owinContainer = owinContainer;
         }
         protected override void ConfigureApplicationContainer(ILifetimeScope container)
         {
-            base.ConfigureApplicationContainer(container);
+            base.ConfigureApplicationContainer(_owinContainer);
 
-            container.Update(builder => 
+            _owinContainer.Update(builder => 
             {
-                
-                foreach(var registration in _owinContainer.ComponentRegistry.Registrations)
-                    builder.RegisterComponent(registration);
+                builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();      
             });
         }
 
-        protected override void RequestStartup(ILifetimeScope container, IPipelines pipelines, NancyContext context)
+        protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
         {
-            var config = new StatelessAuthenticationConfiguration(nancyContext =>
-                    {
-                        //for now, we will pull the apiKey from the querystring,
-                        //but you can pull it from any part of the NancyContext
-                        var apiKey = (string) nancyContext.Request.Query.ApiKey.Value;
-
-                        //get the user identity however you choose to (for now, using a static class/method)
-                        return new System.Security.Claims.ClaimsPrincipal();
-                    });
-
-            StatelessAuthentication.Enable(pipelines, config);
-
-            pipelines.BeforeRequest += (NancyContext ctx) => {
-                return new Response { StatusCode = HttpStatusCode.Unauthorized };
+            pipelines.BeforeRequest += (NancyContext ctx) => 
+            {                
+                return (ctx.CurrentUser == null && !AuthWhiteList.WhiteList.Any(p => p == ctx.Request.Path))? new Response() {StatusCode = HttpStatusCode.Unauthorized} : null;
             };
+        }
+
+        protected override void RequestStartup(ILifetimeScope container, IPipelines pipelines, NancyContext context)
+        {            
+            var identityProvider = _owinContainer.Resolve<IIdentityProvider>();
+            var statelessAuthConfig = new StatelessAuthenticationConfiguration(identityProvider.GetUserIdentity);
+
+            StatelessAuthentication.Enable(pipelines, statelessAuthConfig);            
         }
     }
 }

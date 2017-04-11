@@ -1,7 +1,17 @@
+using System;
+
 namespace gifty.Api.Settings
 {
-    public class AuthSettings
+    internal class AuthSettings
     {
-        public byte[] SecretKey { get; set; }
+        public string SecretKeyBase64 { get; set; }
+
+        public byte[] SecretKey
+        {
+            get
+            {
+                return Convert.FromBase64String(SecretKeyBase64);
+            }
+        }
     }
 }

@@ -37,7 +37,6 @@ namespace gifty.API
             return _selfContainer.Resolve<IServiceProvider>();
         }
 
-
         public void Configure(IApplicationBuilder app)
         {
             app.UseOwin().UseNancy(x => x.Bootstrapper = new AuthBootstraper(_selfContainer));
