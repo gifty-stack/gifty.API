@@ -39,7 +39,7 @@ namespace gifty.API
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseOwin().UseNancy(x => x.Bootstrapper = new AuthBootstraper(_selfContainer));
+            app.UseOwin().UseNancy(x => x.Bootstrapper = new AuthBootstraper(_selfContainer, Configuration));
         }
     }
 }

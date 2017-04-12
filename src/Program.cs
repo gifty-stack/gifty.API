@@ -1,19 +1,19 @@
+using gifty.API.Bootstrapers;
+using gifty.Shared.Builders;
+
 namespace gifty.API
 {
-    using System.IO;
-    using Microsoft.AspNetCore.Hosting;
-
     public class Program
     {
         public static void Main(string[] args)
-        {
-            var host = new WebHostBuilder()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseKestrel()
-                .UseStartup<Startup>()
-                .Build();
-
-            host.Run();
-        }
+        =>
+            ServiceBuilder
+                .CreateDefault<Startup>()
+                .WithPort(5000)
+                .WithAutofac(AuthBootstraper.BootstraperLifetimeScope)
+                .WithRabbitMq("Users", "guest", "guest", 5672)
+                .Build()
+                .Run();
+        
     }
 }

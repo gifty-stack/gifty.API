@@ -6,25 +6,39 @@ using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
 using System.Linq;
+using System;
+using Microsoft.Extensions.Configuration;
+using gifty.Api.Settings;
+using gifty.Shared.Extensions;
 
 namespace gifty.API.Bootstrapers
 {
     internal sealed class AuthBootstraper : AutofacNancyBootstrapper
     {
+        internal static ILifetimeScope BootstraperLifetimeScope;
         private readonly IContainer _owinContainer;
-        private ILifetimeScope _lifetimeScope;
-        public AuthBootstraper(IContainer owinContainer)
+        private readonly IConfigurationRoot _configurationRoot;
+        public AuthBootstraper(IContainer owinContainer, IConfigurationRoot configurationRoot)
         {
             _owinContainer = owinContainer;
+            _configurationRoot = configurationRoot;
         }
         protected override void ConfigureApplicationContainer(ILifetimeScope container)
         {
-            base.ConfigureApplicationContainer(_owinContainer);
+            base.ConfigureApplicationContainer(container);
 
-            _owinContainer.Update(builder => 
-            {
-                builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();      
+            container.Update(builder => 
+            {                
+                Console.WriteLine(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings)).SecretKeyBase64);
+                builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();
+
+                builder.RegisterInstance(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();     
+
+                foreach(var registry in _owinContainer.ComponentRegistry.Registrations)
+                    builder.RegisterComponent(registry);
             });
+
+            BootstraperLifetimeScope = container;
         }
 
         protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
@@ -37,7 +51,7 @@ namespace gifty.API.Bootstrapers
 
         protected override void RequestStartup(ILifetimeScope container, IPipelines pipelines, NancyContext context)
         {            
-            var identityProvider = _owinContainer.Resolve<IIdentityProvider>();
+            var identityProvider = BootstraperLifetimeScope.Resolve<IIdentityProvider>();
             var statelessAuthConfig = new StatelessAuthenticationConfiguration(identityProvider.GetUserIdentity);
 
             StatelessAuthentication.Enable(pipelines, statelessAuthConfig);            

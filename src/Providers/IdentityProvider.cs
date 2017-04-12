@@ -3,7 +3,6 @@ using System.Security.Claims;
 using gifty.Api.Auth;
 using gifty.Api.Settings;
 using Jose;
-using Microsoft.Extensions.Options;
 using Nancy;
 
 namespace gifty.Api.Providers
@@ -13,9 +12,9 @@ namespace gifty.Api.Providers
         private readonly AuthSettings _authSettings;
         private const string _bearerDeclaration = "Bearer ";
 
-        public IdentityProvider(IOptions<AuthSettings> authOptions)
+        public IdentityProvider(AuthSettings authSettings)
         {
-            _authSettings = authOptions.Value;
+            _authSettings = authSettings;
         }
 
         public ClaimsPrincipal GetUserIdentity(NancyContext context)
