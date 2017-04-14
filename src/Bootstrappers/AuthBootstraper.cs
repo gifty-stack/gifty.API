@@ -6,10 +6,10 @@ using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
 using System.Linq;
-using System;
 using Microsoft.Extensions.Configuration;
 using gifty.Api.Settings;
 using gifty.Shared.Extensions;
+using gifty.Shared.IoC;
 
 namespace gifty.API.Bootstrapers
 {
@@ -18,20 +18,21 @@ namespace gifty.API.Bootstrapers
         internal static ILifetimeScope BootstraperLifetimeScope;
         private readonly IContainer _owinContainer;
         private readonly IConfigurationRoot _configurationRoot;
+
         public AuthBootstraper(IContainer owinContainer, IConfigurationRoot configurationRoot)
         {
             _owinContainer = owinContainer;
             _configurationRoot = configurationRoot;
         }
+
         protected override void ConfigureApplicationContainer(ILifetimeScope container)
         {
             base.ConfigureApplicationContainer(container);
 
             container.Update(builder => 
             {                
-                Console.WriteLine(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings)).SecretKeyBase64);
+                builder.RegisterModule(new ServiceModule());
                 builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();
-
                 builder.RegisterInstance(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();     
 
                 foreach(var registry in _owinContainer.ComponentRegistry.Registrations)
