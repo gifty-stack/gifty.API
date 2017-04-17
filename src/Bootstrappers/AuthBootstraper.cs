@@ -10,18 +10,20 @@ using Microsoft.Extensions.Configuration;
 using gifty.Api.Settings;
 using gifty.Shared.Extensions;
 using gifty.Shared.IoC;
+using Microsoft.Extensions.DependencyInjection;
+using Autofac.Extensions.DependencyInjection;
 
 namespace gifty.API.Bootstrapers
 {
     internal sealed class AuthBootstraper : AutofacNancyBootstrapper
     {
         internal static ILifetimeScope BootstraperLifetimeScope;
-        private readonly IContainer _owinContainer;
+        private readonly IServiceCollection _services;
         private readonly IConfigurationRoot _configurationRoot;
 
-        public AuthBootstraper(IContainer owinContainer, IConfigurationRoot configurationRoot)
+        public AuthBootstraper(IServiceCollection services, IConfigurationRoot configurationRoot)
         {
-            _owinContainer = owinContainer;
+            _services = services;
             _configurationRoot = configurationRoot;
         }
 
@@ -35,8 +37,7 @@ namespace gifty.API.Bootstrapers
                 builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();
                 builder.RegisterInstance(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();     
 
-                foreach(var registry in _owinContainer.ComponentRegistry.Registrations)
-                    builder.RegisterComponent(registry);
+                builder.Populate(_services);
             });
 
             BootstraperLifetimeScope = container;

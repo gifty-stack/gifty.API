@@ -23,23 +23,18 @@ namespace gifty.API
             Configuration = builder.Build();
         }
         public IConfigurationRoot Configuration { get; }
-        public IContainer _selfContainer { get; private set; }
+        public IServiceCollection _services { get; private set; }
 
-        public IServiceProvider ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)
         {
             services.Configure<AuthSettings>(Configuration.GetSection("AuthSettings"));
-           
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.Populate(services);
 
-            _selfContainer = containerBuilder.Build();
-
-            return _selfContainer.Resolve<IServiceProvider>();
+            _services = services;
         }
 
         public void Configure(IApplicationBuilder app)
         {
-            app.UseOwin().UseNancy(x => x.Bootstrapper = new AuthBootstraper(_selfContainer, Configuration));
+            app.UseOwin().UseNancy(x => x.Bootstrapper = new AuthBootstraper(_services, Configuration));
         }
     }
 }
