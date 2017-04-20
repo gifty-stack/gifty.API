@@ -1,6 +1,7 @@
 namespace gifty.API
 {
     using Autofac;
+    using gifty.Shared.Exceptions;
     using gifty.Shared.IoC;
     using gifty.Shared.ServiceBus;
     using Nancy;
@@ -9,7 +10,7 @@ namespace gifty.API
     {
         public HomeModule(IServiceBus serviceBus)
         {
-            Get("/", args => "Hello from Nancy running on CoreCLR");
+            Get("/", args => throw new GiftyException(ErrorType.InvalidCommand, "Something failed"));
         }
     }
 }

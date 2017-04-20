@@ -9,38 +9,30 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using gifty.Api.Settings;
 using gifty.Shared.Extensions;
-using gifty.Shared.IoC;
 using Microsoft.Extensions.DependencyInjection;
-using Autofac.Extensions.DependencyInjection;
+using gifty.Shared.Nancy;
 
 namespace gifty.API.Bootstrapers
 {
-    internal sealed class AuthBootstraper : AutofacNancyBootstrapper
+    internal sealed class AuthBootstraper : BootstrapperBase
     {
-        internal static ILifetimeScope BootstraperLifetimeScope;
-        private readonly IServiceCollection _services;
         private readonly IConfigurationRoot _configurationRoot;
 
         public AuthBootstraper(IServiceCollection services, IConfigurationRoot configurationRoot)
+                :base(services)
         {
-            _services = services;
             _configurationRoot = configurationRoot;
         }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope container)
-        {
-            base.ConfigureApplicationContainer(container);
-
+        { 
             container.Update(builder => 
-            {                
-                builder.RegisterModule(new ServiceModule());
+            {
                 builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();
-                builder.RegisterInstance(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();     
-
-                builder.Populate(_services);
+                builder.RegisterInstance(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();
             });
 
-            BootstraperLifetimeScope = container;
+            base.ConfigureApplicationContainer(container);
         }
 
         protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
@@ -49,6 +41,8 @@ namespace gifty.API.Bootstrapers
             {                
                 return (ctx.CurrentUser == null && !AuthWhiteList.WhiteList.Any(p => p == ctx.Request.Path))? new Response() {StatusCode = HttpStatusCode.Unauthorized} : null;
             };
+
+            base.ApplicationStartup(container, pipelines);
         }
 
         protected override void RequestStartup(ILifetimeScope container, IPipelines pipelines, NancyContext context)

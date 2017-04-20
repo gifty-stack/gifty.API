@@ -1,6 +1,3 @@
-using System;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using gifty.Api.Settings;
 using gifty.API.Bootstrapers;
 using Microsoft.AspNetCore.Builder;
