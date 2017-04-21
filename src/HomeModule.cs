@@ -5,6 +5,7 @@ namespace gifty.API
     using gifty.Shared.IoC;
     using gifty.Shared.ServiceBus;
     using Nancy;
+    using Nancy.Security;
 
     public class HomeModule : NancyModule
     {

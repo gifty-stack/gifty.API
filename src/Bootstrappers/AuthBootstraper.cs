@@ -1,11 +1,8 @@
 using Autofac;
 using gifty.Api.Providers;
-using gifty.Api.Auth;
-using Nancy;
 using Nancy.Authentication.Stateless;
 using Nancy.Bootstrapper;
 using Nancy.Bootstrappers.Autofac;
-using System.Linq;
 using Microsoft.Extensions.Configuration;
 using gifty.Api.Settings;
 using gifty.Shared.Extensions;
@@ -19,7 +16,7 @@ namespace gifty.API.Bootstrapers
         private readonly IConfigurationRoot _configurationRoot;
 
         public AuthBootstraper(IServiceCollection services, IConfigurationRoot configurationRoot)
-                :base(services)
+                :base(services)                
         {
             _configurationRoot = configurationRoot;
         }
@@ -37,20 +34,12 @@ namespace gifty.API.Bootstrapers
 
         protected override void ApplicationStartup(ILifetimeScope container, IPipelines pipelines)
         {
-            pipelines.BeforeRequest += (NancyContext ctx) => 
-            {                
-                return (ctx.CurrentUser == null && !AuthWhiteList.WhiteList.Any(p => p == ctx.Request.Path))? new Response() {StatusCode = HttpStatusCode.Unauthorized} : null;
-            };
-
-            base.ApplicationStartup(container, pipelines);
-        }
-
-        protected override void RequestStartup(ILifetimeScope container, IPipelines pipelines, NancyContext context)
-        {            
             var identityProvider = BootstraperLifetimeScope.Resolve<IIdentityProvider>();
             var statelessAuthConfig = new StatelessAuthenticationConfiguration(identityProvider.GetUserIdentity);
 
-            StatelessAuthentication.Enable(pipelines, statelessAuthConfig);            
+            StatelessAuthentication.Enable(pipelines, statelessAuthConfig);   
+
+            base.ApplicationStartup(container, pipelines);
         }
     }
 }
