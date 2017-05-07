@@ -13,12 +13,9 @@ namespace gifty.API.Bootstrapers
 {
     internal sealed class AuthBootstraper : BootstrapperBase
     {
-        private readonly IConfigurationRoot _configurationRoot;
-
         public AuthBootstraper(IServiceCollection services, IConfigurationRoot configurationRoot)
-                :base(services)                
+                :base(services, configurationRoot)                
         {
-            _configurationRoot = configurationRoot;
         }
 
         protected override void ConfigureApplicationContainer(ILifetimeScope container)
@@ -26,7 +23,7 @@ namespace gifty.API.Bootstrapers
             container.Update(builder => 
             {
                 builder.RegisterType<IdentityProvider>().As<IIdentityProvider>();
-                builder.RegisterInstance(_configurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();
+                builder.RegisterInstance(ConfigurationRoot.RegisterSetting<AuthSettings>(nameof(AuthSettings))).SingleInstance();
             });
 
             base.ConfigureApplicationContainer(container);

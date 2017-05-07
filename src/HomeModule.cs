@@ -11,7 +11,8 @@ namespace gifty.API
     {
         public HomeModule(IServiceBus serviceBus)
         {
-            Get("/", args => throw new GiftyException(ErrorType.InvalidCommand, "Something failed"));
+            this.RequiresAuthentication();
+            Get("/", args => "Hello world!");
         }
     }
 }
