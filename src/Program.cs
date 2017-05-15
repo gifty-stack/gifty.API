@@ -11,6 +11,7 @@ namespace gifty.API
                 .CreateDefault<Startup>()
                 .WithPort(5000)
                 .WithAutofac(AuthBootstraper.BootstraperLifetimeScope)
+                .WithNoNeo4j()
                 .WithRabbitMq("Users", "guest", "guest", 5672)
                 .Build()
                 .Run();
