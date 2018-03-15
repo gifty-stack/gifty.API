@@ -22,7 +22,7 @@ namespace gifty.Api.Providers
             try
             {
                 var authorizationHeader = context.Request.Headers.Authorization;
-                var jwt = authorizationHeader.Substring(0, _bearerDeclaration.Length);
+                var jwt = authorizationHeader.Substring(_bearerDeclaration.Length);
 
                 var authToken = Jose.JWT.Decode<AuthToken>(jwt, _authSettings.SecretKey, JwsAlgorithm.HS256);
 
